@@ -180,8 +180,63 @@
   }
   .choice:hover:not(:disabled) { border-color: var(--gold-dim); background: #29405a; }
   .choice:disabled { cursor: default; }
-  .choice.correct { background: rgba(122,148,132,0.25); border-color: var(--sage); }
-  .choice.incorrect { background: rgba(138,59,50,0.25); border-color: var(--oxblood); }
+  .choice.correct { background: rgba(122,148,132,0.32); border-color: var(--sage); box-shadow: 0 0 0 1px var(--sage) inset; }
+  .choice.incorrect { background: rgba(138,59,50,0.32); border-color: var(--oxblood); box-shadow: 0 0 0 1px var(--oxblood) inset; animation: shake 0.4s ease; }
+
+  @keyframes shake {
+    10%, 90% { transform: translateX(-2px); }
+    20%, 80% { transform: translateX(3px); }
+    30%, 50%, 70% { transform: translateX(-5px); }
+    40%, 60% { transform: translateX(5px); }
+  }
+
+  @keyframes popIn {
+    0% { opacity: 0; transform: scale(0.85) translateY(-4px); }
+    60% { opacity: 1; transform: scale(1.03) translateY(0); }
+    100% { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .feedback-banner {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: center;
+    font-family: 'Spectral', serif;
+    font-weight: 600;
+    font-size: 19px;
+    padding: 10px 0;
+    border-radius: var(--radius-card);
+    margin-bottom: 16px;
+    animation: popIn 0.35s ease;
+  }
+  .feedback-banner .icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    font-size: 14px;
+    font-family: 'Work Sans', sans-serif;
+  }
+  .feedback-banner.correct { color: var(--sage); background: rgba(122,148,132,0.14); }
+  .feedback-banner.correct .icon { background: var(--sage); color: #0E1A14; }
+  .feedback-banner.incorrect { color: #D98F84; background: rgba(138,59,50,0.16); }
+  .feedback-banner.incorrect .icon { background: var(--oxblood); color: #F5E5E2; }
+
+  .card.flash-correct { animation: flashCorrect 0.5s ease; }
+  .card.flash-incorrect { animation: flashIncorrect 0.5s ease; }
+
+  @keyframes flashCorrect {
+    0% { box-shadow: 0 0 0 2px rgba(122,148,132,0), 0 20px 60px rgba(0,0,0,0.35); }
+    30% { box-shadow: 0 0 0 2px rgba(122,148,132,0.7), 0 20px 60px rgba(0,0,0,0.35); }
+    100% { box-shadow: 0 0 0 2px rgba(122,148,132,0), 0 20px 60px rgba(0,0,0,0.35); }
+  }
+  @keyframes flashIncorrect {
+    0% { box-shadow: 0 0 0 2px rgba(138,59,50,0), 0 20px 60px rgba(0,0,0,0.35); }
+    30% { box-shadow: 0 0 0 2px rgba(138,59,50,0.7), 0 20px 60px rgba(0,0,0,0.35); }
+    100% { box-shadow: 0 0 0 2px rgba(138,59,50,0), 0 20px 60px rgba(0,0,0,0.35); }
+  }
 
   .reference-note {
     font-size: 13px;
@@ -246,6 +301,44 @@
     opacity: 0.6;
   }
 
+  .report-item {
+    border-bottom: 1px solid rgba(236,228,211,0.08);
+    padding: 14px 2px;
+  }
+  .report-item:last-child { border-bottom: none; }
+  .report-item .r-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .report-item .r-icon {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    margin-top: 2px;
+  }
+  .report-item.correct .r-icon { background: var(--sage); color: #0E1A14; }
+  .report-item.incorrect .r-icon { background: var(--oxblood); color: #F5E5E2; }
+  .report-item .r-question {
+    font-size: 15px;
+    line-height: 1.4;
+    color: var(--parchment);
+  }
+  .report-item .r-answers {
+    font-size: 13px;
+    color: var(--parchment-dim);
+    margin: 6px 0 0 30px;
+    line-height: 1.6;
+  }
+  .report-item .r-answers .wrong-ans { color: #D98F84; }
+  .report-item .r-answers .right-ans { color: var(--sage); }
+  .report-item .r-ref { color: var(--gold); }
+
   .loading-text {
     text-align: center;
     color: var(--parchment-dim);
@@ -280,6 +373,7 @@
         <span id="q-score">Score: 0</span>
       </div>
       <p class="q-text" id="q-text"></p>
+      <div id="feedback-banner-slot"></div>
       <div id="q-choices"></div>
       <p class="reference-note" id="q-reference"></p>
     </div>
@@ -292,7 +386,15 @@
       </div>
       <div id="highscore-area"></div>
       <button class="btn" onclick="startQuiz()">Try Again</button>
+      <button class="btn secondary" onclick="showReport()">View Full Report</button>
       <button class="btn secondary" onclick="showLeaderboard()">View Leaderboard</button>
+    </div>
+
+    <!-- REPORT SCREEN -->
+    <div id="screen-report" class="screen">
+      <p class="q-text" style="font-size:20px;margin-bottom:16px;">Your Report</p>
+      <div id="report-list"></div>
+      <button class="btn secondary" onclick="showScreen('screen-results')" style="margin-top:18px;">Back to Results</button>
     </div>
 
     <!-- LEADERBOARD SCREEN -->
@@ -320,6 +422,7 @@
   let currentIndex = 0;
   let score = 0;
   let answered = false;
+  let userAnswers = [];
 
   function shuffle(arr) {
     const a = arr.slice();
@@ -346,6 +449,7 @@
     currentIndex = 0;
     score = 0;
     answered = false;
+    userAnswers = [];
     showScreen('screen-quiz');
     renderQuestion();
   }
@@ -358,6 +462,7 @@
     document.getElementById('q-score').textContent = `Score: ${score}`;
     document.getElementById('q-text').textContent = q.question;
     document.getElementById('q-reference').textContent = '';
+    document.getElementById('feedback-banner-slot').innerHTML = '';
 
     const choicesEl = document.getElementById('q-choices');
     choicesEl.innerHTML = '';
@@ -377,18 +482,38 @@
     const allButtons = document.querySelectorAll('#q-choices .choice');
     allButtons.forEach(b => b.disabled = true);
 
+    const card = document.querySelector('.card');
+    const bannerSlot = document.getElementById('feedback-banner-slot');
+    const correctChoice = q.choices.find(c => c.isCorrect);
+
     if (choice.isCorrect) {
       btn.classList.add('correct');
       score++;
+      bannerSlot.innerHTML = '<div class="feedback-banner correct"><span class="icon">&#10003;</span> Correct!</div>';
+      card.classList.remove('flash-incorrect');
+      void card.offsetWidth;
+      card.classList.add('flash-correct');
     } else {
       btn.classList.add('incorrect');
       allButtons.forEach((b, i) => {
         if (q.choices[i].isCorrect) b.classList.add('correct');
       });
+      bannerSlot.innerHTML = '<div class="feedback-banner incorrect"><span class="icon">&#10007;</span> Incorrect</div>';
+      card.classList.remove('flash-correct');
+      void card.offsetWidth;
+      card.classList.add('flash-incorrect');
     }
 
     document.getElementById('q-reference').textContent = q.reference;
     document.getElementById('q-score').textContent = `Score: ${score}`;
+
+    userAnswers.push({
+      question: q.question,
+      reference: q.reference,
+      selectedText: choice.text,
+      correctText: correctChoice.text,
+      isCorrect: choice.isCorrect
+    });
 
     setTimeout(() => {
       currentIndex++;
@@ -397,7 +522,7 @@
       } else {
         finishQuiz();
       }
-    }, 1400);
+    }, 1600);
   }
 
   function finishQuiz() {
@@ -469,6 +594,30 @@
 
   function supabaseConfigured() {
     return SUPABASE_URL && !SUPABASE_URL.includes('YOUR_') && SUPABASE_ANON_KEY && !SUPABASE_ANON_KEY.includes('YOUR_');
+  }
+
+  function showReport() {
+    showScreen('screen-report');
+    const list = document.getElementById('report-list');
+    list.innerHTML = userAnswers.map((a, i) => {
+      const cls = a.isCorrect ? 'correct' : 'incorrect';
+      const icon = a.isCorrect ? '&#10003;' : '&#10007;';
+      const answersHtml = a.isCorrect
+        ? `<span class="right-ans">Your answer: ${escapeHtml(a.selectedText)}</span>`
+        : `<span class="wrong-ans">Your answer: ${escapeHtml(a.selectedText)}</span><br><span class="right-ans">Correct answer: ${escapeHtml(a.correctText)}</span>`;
+      return `
+        <div class="report-item ${cls}">
+          <div class="r-head">
+            <span class="r-icon">${icon}</span>
+            <span class="r-question">${i + 1}. ${escapeHtml(a.question)}</span>
+          </div>
+          <div class="r-answers">
+            ${answersHtml}<br>
+            <span class="r-ref">${escapeHtml(a.reference)}</span>
+          </div>
+        </div>
+      `;
+    }).join('');
   }
 
   async function showLeaderboard() {
