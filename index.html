@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2 Corinthians Quiz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;500;600;700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #131F30;
+    --panel: #1C2E45;
+    --panel-raised: #24384F;
+    --gold: #C9A54A;
+    --gold-dim: #8C7539;
+    --parchment: #ECE4D3;
+    --parchment-dim: #B9B0A0;
+    --sage: #7A9484;
+    --oxblood: #8A3B32;
+    --radius-card: 4px;
+    --radius-pill: 999px;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: radial-gradient(ellipse at top, #1a2c44 0%, var(--ink) 60%);
+    color: var(--parchment);
+    font-family: 'Work Sans', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+  }
+
+  .app {
+    width: 100%;
+    max-width: 560px;
+  }
+
+  .letterhead {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+
+  .letterhead .numeral {
+    font-family: 'Spectral', serif;
+    font-size: 15px;
+    letter-spacing: 0.14em;
+    color: var(--gold);
+    margin: 0 0 6px;
+  }
+
+  .letterhead h1 {
+    font-family: 'Spectral', serif;
+    font-weight: 600;
+    font-size: 34px;
+    margin: 0;
+    color: var(--parchment);
+  }
+
+  .letterhead .sub {
+    font-size: 14px;
+    color: var(--parchment-dim);
+    margin-top: 8px;
+    max-width: 380px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.5;
+  }
+
+  .card {
+    background: var(--panel);
+    border: 1px solid rgba(201,165,74,0.18);
+    border-radius: var(--radius-card);
+    padding: 32px 28px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+  }
+
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* Start screen */
+  #screen-start p {
+    line-height: 1.6;
+    color: var(--parchment-dim);
+    font-size: 15px;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: var(--gold);
+    color: #1C1404;
+    border: none;
+    font-family: 'Work Sans', sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    padding: 13px 26px;
+    border-radius: var(--radius-pill);
+    cursor: pointer;
+    transition: transform 0.15s ease, background 0.15s ease;
+    width: 100%;
+    margin-top: 8px;
+  }
+
+  .btn:hover { background: #D8B65C; transform: translateY(-1px); }
+  .btn:active { transform: translateY(0); }
+
+  .btn.secondary {
+    background: transparent;
+    color: var(--parchment);
+    border: 1px solid rgba(236,228,211,0.3);
+  }
+
+  .btn.secondary:hover { background: rgba(236,228,211,0.06); }
+
+  .field {
+    width: 100%;
+    background: var(--panel-raised);
+    border: 1px solid rgba(236,228,211,0.2);
+    color: var(--parchment);
+    font-family: 'Work Sans', sans-serif;
+    font-size: 15px;
+    padding: 12px 14px;
+    border-radius: var(--radius-card);
+    margin-top: 6px;
+  }
+  .field:focus { outline: 2px solid var(--gold); outline-offset: 1px; }
+
+  /* Quiz screen */
+  .progress-track {
+    height: 3px;
+    background: rgba(236,228,211,0.12);
+    border-radius: var(--radius-pill);
+    overflow: hidden;
+    margin-bottom: 18px;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--gold);
+    transition: width 0.3s ease;
+  }
+
+  .q-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: var(--parchment-dim);
+    margin-bottom: 14px;
+  }
+
+  .q-text {
+    font-family: 'Spectral', serif;
+    font-size: 21px;
+    line-height: 1.4;
+    margin: 0 0 22px;
+    color: var(--parchment);
+  }
+
+  .choice {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: var(--panel-raised);
+    border: 1px solid rgba(236,228,211,0.15);
+    color: var(--parchment);
+    font-family: 'Work Sans', sans-serif;
+    font-size: 15px;
+    padding: 14px 16px;
+    border-radius: var(--radius-card);
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  .choice:hover:not(:disabled) { border-color: var(--gold-dim); background: #29405a; }
+  .choice:disabled { cursor: default; }
+  .choice.correct { background: rgba(122,148,132,0.25); border-color: var(--sage); }
+  .choice.incorrect { background: rgba(138,59,50,0.25); border-color: var(--oxblood); }
+
+  .reference-note {
+    font-size: 13px;
+    color: var(--gold);
+    margin-top: 4px;
+    min-height: 18px;
+  }
+
+  /* Results screen */
+  .score-display {
+    text-align: center;
+    padding: 12px 0 24px;
+  }
+  .score-display .big {
+    font-family: 'Spectral', serif;
+    font-size: 56px;
+    font-weight: 600;
+    color: var(--gold);
+    line-height: 1;
+  }
+  .score-display .label {
+    font-size: 14px;
+    color: var(--parchment-dim);
+    margin-top: 6px;
+  }
+
+  .highscore-banner {
+    background: rgba(201,165,74,0.12);
+    border: 1px solid rgba(201,165,74,0.35);
+    border-radius: var(--radius-card);
+    padding: 14px 16px;
+    font-size: 14px;
+    text-align: center;
+    margin-bottom: 20px;
+    color: var(--parchment);
+  }
+
+  /* Leaderboard */
+  .leader-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 4px;
+    border-bottom: 1px solid rgba(236,228,211,0.08);
+    font-size: 15px;
+  }
+  .leader-row:last-child { border-bottom: none; }
+  .leader-rank {
+    color: var(--gold);
+    font-family: 'Spectral', serif;
+    font-weight: 600;
+    width: 28px;
+  }
+  .leader-name { flex: 1; padding-left: 4px; }
+  .leader-score { color: var(--parchment-dim); font-variant-numeric: tabular-nums; }
+
+  .footnote {
+    text-align: center;
+    font-size: 12px;
+    color: var(--parchment-dim);
+    margin-top: 20px;
+    opacity: 0.6;
+  }
+
+  .loading-text {
+    text-align: center;
+    color: var(--parchment-dim);
+    font-size: 14px;
+    padding: 20px 0;
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="letterhead">
+    <p class="numeral">II CORINTHIANS</p>
+    <h1>Test Your Knowledge</h1>
+    <p class="sub">20 questions drawn at random from a bank of 200, based on the NKJV text. Answer choices shuffle every round.</p>
+  </div>
+
+  <div class="card">
+
+    <!-- START SCREEN -->
+    <div id="screen-start" class="screen active">
+      <p>Score 20 fresh questions, then see how you rank against everyone else who has taken the quiz.</p>
+      <button class="btn" onclick="startQuiz()">Begin the Quiz</button>
+      <button class="btn secondary" onclick="showLeaderboard()">View Leaderboard</button>
+    </div>
+
+    <!-- QUIZ SCREEN -->
+    <div id="screen-quiz" class="screen">
+      <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+      <div class="q-meta">
+        <span id="q-counter">Question 1 of 20</span>
+        <span id="q-score">Score: 0</span>
+      </div>
+      <p class="q-text" id="q-text"></p>
+      <div id="q-choices"></div>
+      <p class="reference-note" id="q-reference"></p>
+    </div>
+
+    <!-- RESULTS SCREEN -->
+    <div id="screen-results" class="screen">
+      <div class="score-display">
+        <div class="big" id="final-score">0/20</div>
+        <div class="label" id="final-label">Quiz complete</div>
+      </div>
+      <div id="highscore-area"></div>
+      <button class="btn" onclick="startQuiz()">Try Again</button>
+      <button class="btn secondary" onclick="showLeaderboard()">View Leaderboard</button>
+    </div>
+
+    <!-- LEADERBOARD SCREEN -->
+    <div id="screen-leaderboard" class="screen">
+      <p class="q-text" style="font-size:20px;margin-bottom:16px;">Leaderboard</p>
+      <div id="leaderboard-list"><p class="loading-text">Loading...</p></div>
+      <button class="btn secondary" onclick="showStart()" style="margin-top:18px;">Back</button>
+    </div>
+
+  </div>
+
+  <p class="footnote">Questions paraphrase the content of 2 Corinthians (NKJV). Verify exact wording in your own Bible.</p>
+</div>
+
+<script>
+  // ---- CONFIGURE THESE TWO VALUES ----
+  const SUPABASE_URL = "https://tpjqiqehpljkkojeparm.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRwanFpcWVocGxqa2tvamVwYXJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg1NjY5NTYsImV4cCI6MjEwNDE0Mjk1Nn0.nsj4W_j5Jz2kccw2Dv8HL53jNsygKcziwP73LRX4quo";
+  // -------------------------------------
+
+  const ALL_QUESTIONS = [{"id": 1, "reference": "2 Cor 1:8", "question": "What did Paul say he and his companions experienced in Asia that made them despair even of life?", "choices": ["A famine", "A great affliction/burden beyond their strength", "An earthquake", "A shipwreck"], "answer": 1}, {"id": 2, "reference": "2 Cor 1:3", "question": "According to 2 Corinthians 1:3, what two titles does Paul use for God?", "choices": ["Rock and Fortress", "Alpha and Omega", "King of kings and Lord of lords", "Father of mercies and God of all comfort"], "answer": 3}, {"id": 3, "reference": "2 Cor 1:4", "question": "Why does Paul say God comforts believers in their affliction?", "choices": ["So they can comfort others in any trouble", "So they can boast", "So they can forget their pain", "So they can be at peace"], "answer": 0}, {"id": 4, "reference": "2 Cor 1:9", "question": "Paul says the purpose of their trial was so that they would trust in whom?", "choices": ["Their own strength", "God who raises the dead", "Themselves", "Their companions"], "answer": 1}, {"id": 5, "reference": "2 Cor 1:22", "question": "What does Paul say God has given believers as a guarantee (earnest) in their hearts?", "choices": ["The Spirit", "A written covenant", "A physical sign", "The Law"], "answer": 0}, {"id": 6, "reference": "2 Cor 1:20", "question": "According to 2 Corinthians 1:20, how many of God's promises are \"Yes\" in Christ?", "choices": ["All", "Only the ones about salvation", "None", "Some"], "answer": 0}, {"id": 7, "reference": "2 Cor 1", "question": "Why did Paul say he changed his travel plans to the Corinthians?", "choices": ["He ran out of money", "To spare them another painful visit", "He was afraid of persecution", "He was ill"], "answer": 1}, {"id": 8, "reference": "2 Cor 1:22", "question": "In which chapter does Paul describe himself and Timothy as \"sealed\" and given the Spirit as a guarantee?", "choices": ["Chapter 3", "Chapter 9", "Chapter 1", "Chapter 5"], "answer": 2}, {"id": 9, "reference": "2 Cor 1:19", "question": "Who does Paul mention as being with him and Timothy in preaching the Son of God to the Corinthians?", "choices": ["Peter", "Silvanus (Silas)", "Apollos", "Barnabas"], "answer": 1}, {"id": 10, "reference": "2 Cor 1:12", "question": "What does Paul say was the source of his conduct in the world?", "choices": ["Political strategy", "Personal ambition", "Fleshly wisdom", "Godly sincerity"], "answer": 3}, {"id": 11, "reference": "2 Cor 1:24", "question": "Paul clarifies that he and his companions do not have dominion over what?", "choices": ["The Corinthians' travel", "The Corinthians' faith", "The Corinthians' worship", "The Corinthians' finances"], "answer": 1}, {"id": 12, "reference": "2 Cor 1:23", "question": "What does Paul say was the reason he did not come again to Corinth in sorrow?", "choices": ["He was forbidden", "He forgot", "To spare them", "He was too busy"], "answer": 2}, {"id": 13, "reference": "2 Cor 1:1", "question": "Which chapter opens 2 Corinthians with Paul identifying himself as an apostle \"by the will of God\"?", "choices": ["Chapter 6", "Chapter 2", "Chapter 1", "Chapter 4"], "answer": 2}, {"id": 14, "reference": "2 Cor 1:5", "question": "As the sufferings of Christ abound in believers, what else abounds through Christ?", "choices": ["Wisdom", "Authority", "Comfort", "Wealth"], "answer": 2}, {"id": 15, "reference": "2 Cor 1:1", "question": "Who is addressed alongside Paul as a co-sender of 2 Corinthians?", "choices": ["Titus", "Timothy", "Apollos", "Silas"], "answer": 1}, {"id": 16, "reference": "2 Cor 1:1", "question": "To whom is the letter addressed, besides the church at Corinth?", "choices": ["The church at Philippi", "All the saints in Achaia", "The believers in Galatia", "The elders of Ephesus"], "answer": 1}, {"id": 17, "reference": "2 Cor 2:4", "question": "Why did Paul say he wrote his previous letter with many tears?", "choices": ["To make known his abundant love", "To announce his death", "To ask for money", "To grieve them"], "answer": 0}, {"id": 18, "reference": "2 Cor 2:7", "question": "What does Paul urge the church to do for the man who caused grief, once he has been sufficiently punished?", "choices": ["Forgive and comfort him", "Fine him", "Excommunicate him permanently", "Ignore him"], "answer": 0}, {"id": 19, "reference": "2 Cor 2:7", "question": "Why does Paul say forgiveness of the offender is urgent?", "choices": ["So he can be reinstated as a leader", "So Paul can visit sooner", "So the church looks merciful", "So he isn't swallowed up by excessive sorrow"], "answer": 3}, {"id": 20, "reference": "2 Cor 2:11", "question": "Forgiveness is needed so that they are not outwitted by whom?", "choices": ["The Romans", "Satan", "False teachers", "The Corinthian elders"], "answer": 1}, {"id": 21, "reference": "2 Cor 2:12-13", "question": "Where did Paul go looking for Titus but find no rest for his spirit?", "choices": ["Ephesus", "Philippi", "Rome", "Troas"], "answer": 3}, {"id": 22, "reference": "2 Cor 2:14", "question": "Paul describes believers as being led by God in what, in Christ?", "choices": ["A triumphal procession", "A pilgrimage", "A battle formation", "A royal parade"], "answer": 0}, {"id": 23, "reference": "2 Cor 2:14", "question": "What does Paul compare the spread of the knowledge of Christ to?", "choices": ["A fragrant aroma", "A burning fire", "A flowing river", "A trumpet blast"], "answer": 0}, {"id": 24, "reference": "2 Cor 2:16", "question": "To those who are perishing, believers are the aroma of what?", "choices": ["Hope to despair", "Judgment to mercy", "Life to life", "Death to death"], "answer": 3}, {"id": 25, "reference": "2 Cor 2:17", "question": "Paul says he does not, like many others, do what with the word of God?", "choices": ["Memorize it", "Ignore it", "Peddle/corrupt it for profit", "Translate it"], "answer": 2}, {"id": 26, "reference": "2 Cor 2:17", "question": "In what manner does Paul say he speaks the word of God?", "choices": ["In sincerity, as from God", "Only in private", "With eloquence", "With hidden motives"], "answer": 0}, {"id": 27, "reference": "2 Cor 2:4", "question": "What was Paul's emotional state described as when he wrote the earlier severe letter?", "choices": ["Angry and bitter", "Indifferent", "Anguish of heart and many tears", "Joyful"], "answer": 2}, {"id": 28, "reference": "2 Cor 2", "question": "In which chapter does Paul discuss forgiving the man who had caused sorrow to the church?", "choices": ["Chapter 5", "Chapter 10", "Chapter 2", "Chapter 7"], "answer": 2}, {"id": 29, "reference": "2 Cor 2:1", "question": "What did Paul decide regarding a painful visit to Corinth?", "choices": ["He sent Titus instead permanently", "He determined not to come again in sorrow", "He would visit immediately", "He would never return"], "answer": 1}, {"id": 30, "reference": "2 Cor 2:5", "question": "Paul says that if he caused grief, he did not do it alone but to some degree grieved whom also?", "choices": ["Himself only", "All of them, so as not to overstate it", "Timothy", "The Ephesians"], "answer": 1}, {"id": 31, "reference": "2 Cor 2:3", "question": "What confidence did Paul have concerning the Corinthians even amid the conflict?", "choices": ["That they needed no correction", "That his joy was the joy of them all", "That they were perfect", "That they would abandon him"], "answer": 1}, {"id": 32, "reference": "2 Cor 3:2-3", "question": "Paul says the Corinthians themselves are what kind of letter?", "choices": ["A letter of recommendation from men", "A prophetic scroll", "A legal contract", "A letter of Christ, written on hearts"], "answer": 3}, {"id": 33, "reference": "2 Cor 3:6", "question": "What does the letter (of the law) do, in contrast to the Spirit?", "choices": ["The letter gives life", "The letter kills, but the Spirit gives life", "The letter judges, the Spirit forgives", "The letter saves, the Spirit condemns"], "answer": 1}, {"id": 34, "reference": "2 Cor 3:6", "question": "Paul calls himself and his companions ministers of what kind of covenant?", "choices": ["The new covenant", "A covenant of works", "The old covenant", "A covenant of silence"], "answer": 0}, {"id": 35, "reference": "2 Cor 3:7", "question": "What does Paul call the ministry that was engraved on stones, associated with Moses?", "choices": ["The ministry of life", "The ministry of peace", "The ministry of death", "The ministry of joy"], "answer": 2}, {"id": 36, "reference": "2 Cor 3:7,13", "question": "Why did the Israelites need Moses to put a veil over his face?", "choices": ["Because he was ashamed", "Because it was a fashion custom", "Because God commanded silence", "Because his face shone with fading glory and they couldn't look steadily at it"], "answer": 3}, {"id": 37, "reference": "2 Cor 3:15", "question": "When the old covenant (Moses) is read, what remains over the hearts of unbelieving Israel?", "choices": ["A crown", "A veil", "A shadow", "A curtain"], "answer": 1}, {"id": 38, "reference": "2 Cor 3:16", "question": "What happens when one turns to the Lord?", "choices": ["Nothing changes", "They receive new tablets", "The veil is taken away", "They must repeat the ritual"], "answer": 2}, {"id": 39, "reference": "2 Cor 3:17", "question": "What famous statement does Paul make about the Spirit of the Lord and liberty?", "choices": ["Where the Spirit of the Lord is, there is liberty", "Where the Spirit of the Lord is, there is judgment", "Where the Spirit of the Lord is, there is fear", "Where the Spirit of the Lord is, there is silence"], "answer": 0}, {"id": 40, "reference": "2 Cor 3:18", "question": "Believers, beholding the glory of the Lord, are being transformed into the same image from glory to glory by whom?", "choices": ["Angels", "Their own effort", "The law", "The Spirit of the Lord"], "answer": 3}, {"id": 41, "reference": "2 Cor 3:9", "question": "Paul contrasts the ministry of condemnation with the ministry of what, saying the latter exceeds in glory?", "choices": ["Wisdom", "Wealth", "Righteousness", "Power"], "answer": 2}, {"id": 42, "reference": "2 Cor 3", "question": "In which chapter does Paul discuss Moses' veiled face and the fading glory of the old covenant?", "choices": ["Chapter 8", "Chapter 6", "Chapter 3", "Chapter 11"], "answer": 2}, {"id": 43, "reference": "2 Cor 3:4-5", "question": "Paul says believers have such trust through Christ, so that their sufficiency is from where?", "choices": ["From the law", "From God", "From tradition", "From themselves"], "answer": 1}, {"id": 44, "reference": "2 Cor 3:10-11", "question": "What does Paul say about the glory of the new covenant compared to the old?", "choices": ["It is temporary only", "It is equal", "It is inferior", "It surpasses it in glory"], "answer": 3}, {"id": 45, "reference": "2 Cor 3:12", "question": "Because believers have such hope, how does Paul say they use great boldness of speech?", "choices": ["Openly and boldly", "Cautiously", "Never", "Only in private"], "answer": 0}, {"id": 46, "reference": "2 Cor 3:2", "question": "Paul describes the Corinthians as a letter known and read by whom?", "choices": ["Only the apostles", "All men", "No one", "Only Paul"], "answer": 1}, {"id": 47, "reference": "2 Cor 4:1", "question": "What does Paul say he and his companions do not lose, since they have this ministry by the mercy of God?", "choices": ["Their reputation", "Heart", "Their possessions", "Their patience"], "answer": 1}, {"id": 48, "reference": "2 Cor 4:2", "question": "Paul says he renounced what kind of things?", "choices": ["All forms of preaching", "Physical comforts", "Hidden things of shame and craftiness/deceit", "His apostleship"], "answer": 2}, {"id": 49, "reference": "2 Cor 4:4", "question": "Who does Paul say has blinded the minds of unbelievers so they cannot see the light of the gospel?", "choices": ["False prophets", "The god of this age (Satan)", "The Roman emperor", "The Pharisees"], "answer": 1}, {"id": 50, "reference": "2 Cor 4:5", "question": "Paul clarifies that he preaches not himself, but whom?", "choices": ["Christ Jesus as Lord", "Moses", "The church", "Timothy"], "answer": 0}, {"id": 51, "reference": "2 Cor 4:7", "question": "Paul compares believers carrying the treasure of the gospel to what kind of container?", "choices": ["Iron chests", "Clay jars (earthen vessels)", "Silver bowls", "Golden vessels"], "answer": 1}, {"id": 52, "reference": "2 Cor 4:7", "question": "Why does Paul say the treasure is kept in fragile \"jars of clay\"?", "choices": ["Because clay was cheap", "To test their faith", "Because Paul liked pottery", "So the excellence of the power may be of God, not of us"], "answer": 3}, {"id": 53, "reference": "2 Cor 4:8-9", "question": "Which of these phrase pairs describes Paul's afflictions?", "choices": ["Hard pressed but not crushed; perplexed but not in despair", "Strong but not confident", "Honored but not respected", "Wealthy but not satisfied"], "answer": 0}, {"id": 54, "reference": "2 Cor 4:9", "question": "Paul says he is persecuted but not what?", "choices": ["Forsaken", "Defeated", "Ashamed", "Silenced"], "answer": 0}, {"id": 55, "reference": "2 Cor 4:10", "question": "Paul says he always carries in his body the dying of Jesus so that what might also be revealed?", "choices": ["The wisdom of Jesus", "The life of Jesus", "The wealth of Jesus", "The suffering of Jesus"], "answer": 1}, {"id": 56, "reference": "2 Cor 4:13", "question": "What does Paul quote as the \"spirit of faith\" statement\u2014\"I believed and therefore...\"?", "choices": ["I hoped", "I rejoiced", "I spoke", "I obeyed"], "answer": 2}, {"id": 57, "reference": "2 Cor 4:16", "question": "Even though the outward man is perishing, what is happening to the inward man?", "choices": ["It is being renewed day by day", "It is fading too", "It remains unchanged", "It is being tested"], "answer": 0}, {"id": 58, "reference": "2 Cor 4:17", "question": "Paul calls present afflictions \"light\" and momentary because they are producing what?", "choices": ["Temporary relief", "Physical healing", "Public recognition", "An exceeding and eternal weight of glory"], "answer": 3}, {"id": 59, "reference": "2 Cor 4:18", "question": "What does Paul say believers should not look at, in contrast to the things that are unseen?", "choices": ["The scriptures", "The future", "Their neighbors", "The things which are seen"], "answer": 3}, {"id": 60, "reference": "2 Cor 4:18", "question": "Why are unseen things more significant than seen things?", "choices": ["Seen things don't exist", "Seen things are temporary, unseen things are eternal", "Unseen things are easier to understand", "Seen things are false"], "answer": 1}, {"id": 61, "reference": "2 Cor 4", "question": "In which chapter does Paul describe believers as \"hard pressed... but not crushed\"?", "choices": ["Chapter 4", "Chapter 7", "Chapter 9", "Chapter 2"], "answer": 0}, {"id": 62, "reference": "2 Cor 4:2", "question": "Paul commends himself to every man's conscience by what?", "choices": ["Wealth", "Political influence", "Manifestation of the truth", "Miraculous signs"], "answer": 2}, {"id": 63, "reference": "2 Cor 5:1", "question": "What does Paul call the earthly body?", "choices": ["A temple of gold", "A garden", "An earthly house/tent", "A prison"], "answer": 2}, {"id": 64, "reference": "2 Cor 5:2", "question": "What does Paul say believers groan for while in this earthly tent?", "choices": ["Wealth", "Their heavenly dwelling", "Political freedom", "Rest from work"], "answer": 1}, {"id": 65, "reference": "2 Cor 5:5", "question": "Who has given believers the Spirit as a guarantee?", "choices": ["Angels", "Moses", "The apostles", "God"], "answer": 3}, {"id": 66, "reference": "2 Cor 5:7", "question": "What famous phrase describes how believers are to live?", "choices": ["We walk by works, not grace", "We walk by faith, not by sight", "We walk by sight, not by faith", "We walk by law, not love"], "answer": 1}, {"id": 67, "reference": "2 Cor 5:8", "question": "Paul says he would rather be absent from the body and present with whom?", "choices": ["His family", "The church", "The Lord", "The angels"], "answer": 2}, {"id": 68, "reference": "2 Cor 5:9", "question": "What is Paul's stated aim, whether present in the body or absent?", "choices": ["To avoid suffering", "To gain wealth", "To be famous", "To be well pleasing to Him"], "answer": 3}, {"id": 69, "reference": "2 Cor 5:10", "question": "Before what must everyone appear, to receive the things done in the body?", "choices": ["The judgment seat of Christ", "The city council", "The Roman court", "The Sanhedrin"], "answer": 0}, {"id": 70, "reference": "2 Cor 5:11", "question": "What does Paul say motivates him to persuade men, knowing this truth?", "choices": ["Personal ambition", "The terror of the Lord", "Fear of Rome", "Desire for fame"], "answer": 1}, {"id": 71, "reference": "2 Cor 5:17", "question": "What happens to someone who is in Christ?", "choices": ["They receive a new name", "They become a new creation", "They are freed from all hardship", "They become wealthy"], "answer": 1}, {"id": 72, "reference": "2 Cor 5:17", "question": "What is said to have passed away, and what has come?", "choices": ["Old laws passed away, new laws arrived", "Old sins passed, new sins remain", "Old things passed away, all things become new", "Old friends passed away, new friends arrived"], "answer": 2}, {"id": 73, "reference": "2 Cor 5:18", "question": "What ministry has God given to believers?", "choices": ["The ministry of law", "The ministry of silence", "The ministry of judgment", "The ministry of reconciliation"], "answer": 3}, {"id": 74, "reference": "2 Cor 5:20", "question": "Paul says believers are ambassadors for Christ, as though God were pleading through them, saying what?", "choices": ["Give generously", "Be reconciled to God", "Repent of idolatry", "Obey the law"], "answer": 1}, {"id": 75, "reference": "2 Cor 5:21", "question": "God made Him who knew no sin to be what for us?", "choices": ["A high priest", "A sacrifice of atonement only", "Sin for us", "A living example"], "answer": 2}, {"id": 76, "reference": "2 Cor 5:21", "question": "What is the purpose stated for Christ becoming sin for us?", "choices": ["So we might avoid suffering", "So we might become priests", "So we might be forgiven temporarily", "So we might become the righteousness of God in Him"], "answer": 3}, {"id": 77, "reference": "2 Cor 5", "question": "In which chapter does Paul describe believers as being like a tent that will be replaced with a heavenly building?", "choices": ["Chapter 8", "Chapter 12", "Chapter 10", "Chapter 5"], "answer": 3}, {"id": 78, "reference": "2 Cor 5:4", "question": "What does Paul say happens to what is mortal, in light of the guarantee of the Spirit?", "choices": ["It disappears entirely", "It becomes eternal on its own", "It is transformed into spirit immediately", "It is swallowed up by life"], "answer": 3}, {"id": 79, "reference": "2 Cor 6:2", "question": "What phrase does Paul use to describe the urgency of responding to God?", "choices": ["\"Now is the accepted time, now is the day of salvation\"", "\"The time has passed\"", "\"Tomorrow is never promised\"", "\"Wait for a sign\""], "answer": 0}, {"id": 80, "reference": "2 Cor 6:5", "question": "Paul lists many hardships, including stripes, imprisonments, and what else?", "choices": ["Political power", "Riches and comfort", "Popularity", "Tumults, labors, sleeplessness, fasting"], "answer": 3}, {"id": 81, "reference": "2 Cor 6:6-7", "question": "By what qualities does Paul commend himself as a minister?", "choices": ["Political skill", "Wealth and status", "Physical strength", "Purity, knowledge, longsuffering, kindness, and sincere love"], "answer": 3}, {"id": 82, "reference": "2 Cor 6:9-10", "question": "Paul describes his ministry using paradoxes like \"as dying, and behold we live.\" What is this style called?", "choices": ["A series of contrasts illustrating endurance amid hardship", "A prophecy of future events", "A riddle for the Corinthians to solve", "A legal argument"], "answer": 0}, {"id": 83, "reference": "2 Cor 6:10", "question": "Paul describes himself as sorrowful yet always doing what?", "choices": ["Complaining", "Weeping", "Rejoicing", "Silent"], "answer": 2}, {"id": 84, "reference": "2 Cor 6:10", "question": "Paul says he is \"poor, yet\" doing what for many?", "choices": ["Judging many", "Avoiding many", "Making many rich", "Ignoring many"], "answer": 2}, {"id": 85, "reference": "2 Cor 6:14", "question": "What warning does Paul give regarding relationships with unbelievers?", "choices": ["Do not speak to outsiders", "Only marry within your tribe", "Do not be unequally yoked together with unbelievers", "Avoid all non-believers entirely"], "answer": 2}, {"id": 86, "reference": "2 Cor 6:14", "question": "What does Paul say righteousness has in common with lawlessness?", "choices": ["No fellowship", "Mutual respect", "A partnership", "A shared purpose"], "answer": 0}, {"id": 87, "reference": "2 Cor 6:14", "question": "What rhetorical question does Paul ask about light and darkness?", "choices": ["What color is darkness?", "What communion has light with darkness?", "Can light exist without darkness?", "Why does light fear darkness?"], "answer": 1}, {"id": 88, "reference": "2 Cor 6:16", "question": "Paul refers to believers collectively as the temple of whom?", "choices": ["The living God", "The apostles", "Moses", "Caesar"], "answer": 0}, {"id": 89, "reference": "2 Cor 6:17", "question": "What command does Paul give regarding separation?", "choices": ["\"Argue with them constantly\"", "\"Blend in for safety\"", "\"Come out from among them and be separate\"", "\"Stay hidden among them\""], "answer": 2}, {"id": 90, "reference": "2 Cor 6", "question": "In which chapter does Paul give the instruction not to be \"unequally yoked\" with unbelievers?", "choices": ["Chapter 9", "Chapter 4", "Chapter 12", "Chapter 6"], "answer": 3}, {"id": 91, "reference": "2 Cor 6:1", "question": "Paul urges the Corinthians not to receive the grace of God in what condition?", "choices": ["In doubt", "In abundance", "In secret", "In vain"], "answer": 3}, {"id": 92, "reference": "2 Cor 6:11-13", "question": "How does Paul describe his heart toward the Corinthians?", "choices": ["Angry", "Indifferent", "Wide open", "Closed off"], "answer": 2}, {"id": 93, "reference": "2 Cor 6:13", "question": "What does Paul ask the Corinthians for, in return for his open affection?", "choices": ["A formal apology", "A similar open affection in return", "Financial support", "Public praise"], "answer": 1}, {"id": 94, "reference": "2 Cor 7:1", "question": "Believers should cleanse themselves from filthiness of the flesh and spirit, perfecting what in the fear of God?", "choices": ["Holiness", "Knowledge", "Authority", "Wealth"], "answer": 0}, {"id": 95, "reference": "2 Cor 7:5-6", "question": "What comfort does Paul say he received despite outward conflicts and inward fears?", "choices": ["Comfort from the Corinthians' money", "Comfort from a vision", "Comfort from Rome", "Comfort from the coming of Titus"], "answer": 3}, {"id": 96, "reference": "2 Cor 7:10", "question": "What kind of sorrow does Paul say produces repentance leading to salvation?", "choices": ["Silent sorrow", "Godly sorrow", "Worldly sorrow", "Public sorrow"], "answer": 1}, {"id": 97, "reference": "2 Cor 7:10", "question": "What does the sorrow of the world produce?", "choices": ["Joy", "Wisdom", "Death", "Repentance"], "answer": 2}, {"id": 98, "reference": "2 Cor 7:7", "question": "What report from Titus brought Paul great comfort and joy regarding the Corinthians?", "choices": ["Their financial success", "Their political influence", "Their new building project", "Their earnest desire, mourning, and zeal for Paul"], "answer": 3}, {"id": 99, "reference": "2 Cor 7:8-9", "question": "Paul says he does not regret his earlier sorrowful letter because it led to what?", "choices": ["Silence", "Division", "Repentance", "Punishment"], "answer": 2}, {"id": 100, "reference": "2 Cor 7:11", "question": "What effect did godly sorrow produce among the Corinthians?", "choices": ["Anger toward Paul", "Apathy and confusion", "Complete withdrawal from the church", "Diligence, indignation, fear, vehement desire, zeal, and vindication"], "answer": 3}, {"id": 101, "reference": "2 Cor 7", "question": "In which chapter does Paul discuss the difference between godly sorrow and worldly sorrow?", "choices": ["Chapter 11", "Chapter 7", "Chapter 5", "Chapter 9"], "answer": 1}, {"id": 102, "reference": "2 Cor 7:5", "question": "What was Paul's emotional state before Titus arrived with news of the Corinthians?", "choices": ["Troubled on every side, conflicts without, fears within", "At peace and rest", "Indifferent", "Joyful and celebrating"], "answer": 0}, {"id": 103, "reference": "2 Cor 7:13", "question": "What comforted Paul in addition to Titus's news?", "choices": ["A letter from Rome", "The refreshing of Titus's spirit by them", "A financial gift", "A vision from God"], "answer": 1}, {"id": 104, "reference": "2 Cor 7:14", "question": "Paul expresses confidence in the Corinthians, saying he had said nothing to Titus that was what?", "choices": ["Forgotten", "A lie", "Confidential", "Put to shame"], "answer": 3}, {"id": 105, "reference": "2 Cor 7:15", "question": "What does Paul say the Corinthians' reception of Titus was accompanied with?", "choices": ["Indifference", "Silence", "Resentment", "Fear and trembling"], "answer": 3}, {"id": 106, "reference": "2 Cor 7:16", "question": "What is Paul's overall conclusion about his confidence in the Corinthians by the end of chapter 7?", "choices": ["He demands further proof", "He rejoices that he has confidence in them in everything", "He regrets writing to them", "He plans to abandon the church"], "answer": 1}, {"id": 107, "reference": "2 Cor 7:2", "question": "What phrase does Paul use to appeal to the Corinthians for reconciliation?", "choices": ["\"Judge us fairly\"", "\"Forget the past\"", "\"Open your hearts to us\"", "\"Send us money\""], "answer": 2}, {"id": 108, "reference": "2 Cor 8:1-2", "question": "What example of generosity does Paul highlight from the churches of Macedonia?", "choices": ["They gave grudgingly", "Their wealth allowed for extravagant giving", "Their deep poverty overflowed into abundant generosity", "They refused to give"], "answer": 2}, {"id": 109, "reference": "2 Cor 8:3", "question": "The Macedonians gave beyond their ability, and Paul says they did so how?", "choices": ["Anonymously only", "Under compulsion", "Reluctantly", "Willingly, of their own accord"], "answer": 3}, {"id": 110, "reference": "2 Cor 8:4", "question": "What did the Macedonians beg Paul for the privilege of doing?", "choices": ["Participating in the giving to the saints", "Becoming apostles", "Leading the church", "Traveling with Paul"], "answer": 0}, {"id": 111, "reference": "2 Cor 8:5", "question": "Before giving materially, what did the Macedonians give first?", "choices": ["Their time", "Themselves to the Lord", "Their money", "Their reputation"], "answer": 1}, {"id": 112, "reference": "2 Cor 8:9", "question": "Though He was rich, what did Christ become for our sakes?", "choices": ["Poor", "Silent", "A servant only", "A king"], "answer": 0}, {"id": 113, "reference": "2 Cor 8:9", "question": "What is the purpose stated for Christ becoming poor?", "choices": ["So He could relate to the poor", "So that through His poverty we might become rich", "So He could avoid persecution", "So He could teach humility only"], "answer": 1}, {"id": 114, "reference": "2 Cor 8:13-14", "question": "Paul explains the principle of giving is by what standard, not that others be eased while the Corinthians are burdened?", "choices": ["Competition", "Obligation", "Punishment", "Equality"], "answer": 3}, {"id": 115, "reference": "2 Cor 8:15", "question": "Paul references gathering manna, saying \"he who gathered much had nothing left over, and he who gathered little\" did what?", "choices": ["Complained", "Shared with none", "Was punished", "Had no lack"], "answer": 3}, {"id": 116, "reference": "2 Cor 8:16-18", "question": "Who did Paul send to Corinth to help complete the collection, along with a brother whose praise was in the gospel?", "choices": ["Titus", "Silas", "Timothy", "Barnabas"], "answer": 0}, {"id": 117, "reference": "2 Cor 8:20-21", "question": "Why did Paul take precaution in how the offering was handled?", "choices": ["Because Titus insisted", "To avoid any blame regarding the large sum", "Because he distrusted the Corinthians", "Because Roman law required it"], "answer": 1}, {"id": 118, "reference": "2 Cor 8:21", "question": "Paul wanted to provide honest things not only in the sight of the Lord but also in the sight of whom?", "choices": ["Angels", "The Jewish council", "Men", "The Roman government"], "answer": 2}, {"id": 119, "reference": "2 Cor 8", "question": "In which chapter does Paul discuss the Macedonian churches' generosity as a model for the Corinthians?", "choices": ["Chapter 13", "Chapter 10", "Chapter 8", "Chapter 6"], "answer": 2}, {"id": 120, "reference": "2 Cor 8:6", "question": "What did Paul urge Titus to do regarding the collection for the saints, since he had started it?", "choices": ["Take it over personally", "Postpone it indefinitely", "Abandon it", "Complete this grace in the Corinthians also"], "answer": 3}, {"id": 121, "reference": "2 Cor 8:8", "question": "Paul says he is testing the sincerity of their love by comparing it to whose diligence?", "choices": ["The Ephesians'", "The Macedonians'", "The Galatians'", "The Romans'"], "answer": 1}, {"id": 122, "reference": "2 Cor 8:7", "question": "What quality does Paul urge the Corinthians to excel in, alongside faith, speech, knowledge, and diligence?", "choices": ["The grace of giving", "Wealth accumulation", "Public speaking", "Political influence"], "answer": 0}, {"id": 123, "reference": "2 Cor 8:12", "question": "If there is first a willing mind, giving is accepted according to what standard?", "choices": ["A fixed tithe amount", "What one has, not what one does not have", "The wealth of others", "Roman tax law"], "answer": 1}, {"id": 124, "reference": "2 Cor 9:1", "question": "Why does Paul say it was unnecessary for him to write further about the ministry to the saints?", "choices": ["Because he knew their readiness to give", "Because Titus refused to help", "Because he already knew they wouldn't give", "Because the collection was cancelled"], "answer": 0}, {"id": 125, "reference": "2 Cor 9:6", "question": "What agricultural analogy does Paul use about giving?", "choices": ["He who waters reaps rain", "He who plants a tree reaps its shade", "He who sows sparingly reaps sparingly, he who sows bountifully reaps bountifully", "He who harvests early reaps less"], "answer": 2}, {"id": 126, "reference": "2 Cor 9:7", "question": "How should each person give, as they have purposed in their heart?", "choices": ["Only when compelled by law", "In secret only", "Grudgingly or of necessity", "Not grudgingly or of necessity, for God loves a cheerful giver"], "answer": 3}, {"id": 127, "reference": "2 Cor 9:7", "question": "What famous phrase describes the kind of giver God loves?", "choices": ["A cautious giver", "A cheerful giver", "A wealthy giver", "A public giver"], "answer": 1}, {"id": 128, "reference": "2 Cor 9:8", "question": "God is able to make all grace abound so that believers, having sufficiency, may abound in what?", "choices": ["Physical strength", "Political power", "Every good work", "Personal wealth"], "answer": 2}, {"id": 129, "reference": "2 Cor 9:10", "question": "God supplies seed to the sower and will also do what to the giver's resources?", "choices": ["Multiply the seed sown and increase the fruits of righteousness", "Store it for later", "Take it all away", "Divide it among enemies"], "answer": 0}, {"id": 130, "reference": "2 Cor 9:12", "question": "What does Paul say this ministry of giving produces, beyond supplying the needs of the saints?", "choices": ["A tax exemption", "Personal fame for Paul", "Political favor", "Abundant thanksgiving to God"], "answer": 3}, {"id": 131, "reference": "2 Cor 9:13", "question": "The Corinthians' obedience to their confession of the gospel of Christ would cause others to do what?", "choices": ["Glorify God", "Doubt the gospel", "Demand more offerings", "Ignore the church"], "answer": 0}, {"id": 132, "reference": "2 Cor 9:15", "question": "How does Paul describe God's gift at the close of chapter 9?", "choices": ["Conditional", "Small", "Temporary", "Indescribable"], "answer": 3}, {"id": 133, "reference": "2 Cor 9", "question": "In which chapter does Paul give his teaching on cheerful giving?", "choices": ["Chapter 7", "Chapter 13", "Chapter 11", "Chapter 9"], "answer": 3}, {"id": 134, "reference": "2 Cor 9:3-4", "question": "Why did Paul send the brethren ahead to Corinth regarding the collection?", "choices": ["To replace Titus", "To collect taxes for Rome", "To start a new church", "So his boasting about them would not prove empty"], "answer": 3}, {"id": 135, "reference": "2 Cor 9:5", "question": "What did Paul want the Corinthians' gift to be, rather than a grudging obligation?", "choices": ["A generous gift, not as a grudging obligation", "A public spectacle", "An anonymous donation only", "A legal requirement"], "answer": 0}, {"id": 136, "reference": "2 Cor 9:11", "question": "The Corinthians would be enriched in everything for what purpose?", "choices": ["Personal luxury", "Liberality/generosity", "Political power", "Military strength"], "answer": 1}, {"id": 137, "reference": "2 Cor 9:14", "question": "What does Paul say the saints would do in response to the Corinthians' generosity?", "choices": ["Ignore them", "Long for them and pray for them", "Demand more", "Criticize them"], "answer": 1}, {"id": 138, "reference": "2 Cor 9", "question": "What is the overall theme Paul emphasizes throughout 2 Corinthians 9 regarding giving?", "choices": ["Avoiding all giving", "Giving only under compulsion", "Cheerful, generous, purposeful giving that God multiplies and blesses", "Giving to gain political favor"], "answer": 2}, {"id": 139, "reference": "2 Cor 10:1", "question": "How does Paul appeal to the Corinthians at the start of chapter 10?", "choices": ["By threatening them", "By his apostolic title alone", "By reminding them of Roman law", "By the meekness and gentleness of Christ"], "answer": 3}, {"id": 140, "reference": "2 Cor 10:4", "question": "The weapons of Paul's warfare are not carnal but are mighty in God for doing what?", "choices": ["Gaining wealth", "Pulling down strongholds", "Building temples", "Winning political battles"], "answer": 1}, {"id": 141, "reference": "2 Cor 10:5", "question": "What does Paul say believers should do with every thought?", "choices": ["Bring it into captivity to the obedience of Christ", "Ignore it", "Debate it publicly", "Publish it"], "answer": 0}, {"id": 142, "reference": "2 Cor 10:5", "question": "Paul warns against casting down what, that exalts itself against the knowledge of God?", "choices": ["Every law", "Every building", "Every nation", "Every high thing/argument"], "answer": 3}, {"id": 143, "reference": "2 Cor 10:17", "question": "What famous saying does Paul include about where one should boast?", "choices": ["\"He who glories, let him glory in the Lord\"", "\"He who glories, let him glory in himself\"", "\"Glory belongs to Rome\"", "\"Let no one glory\""], "answer": 0}, {"id": 144, "reference": "2 Cor 10:12", "question": "Paul says it is not wise to do what?", "choices": ["Measure and compare oneself among others", "Travel to new regions", "Preach the gospel", "Write letters"], "answer": 0}, {"id": 145, "reference": "2 Cor 10:18", "question": "What does Paul say about commendation?", "choices": ["Commendation comes only from the church elders", "Commendation is unnecessary", "Not he who commends himself is approved, but whom the Lord commends", "Self-commendation is always valid"], "answer": 2}, {"id": 146, "reference": "2 Cor 10:1,10", "question": "Paul was accused of being bold in what, but weak when present?", "choices": ["Actions when present", "Letters when absent", "Public speech", "Private conversation"], "answer": 1}, {"id": 147, "reference": "2 Cor 10:8", "question": "What is Paul's stated purpose for the authority the Lord gave him?", "choices": ["Punishment only", "Edification, not destruction", "Personal gain", "Political control"], "answer": 1}, {"id": 148, "reference": "2 Cor 10:13-15", "question": "Paul says he will boast according to what standard?", "choices": ["Comparisons with other apostles", "The measure of the rule/sphere God appointed to him", "Whatever he chooses arbitrarily", "The size of his congregation"], "answer": 1}, {"id": 149, "reference": "2 Cor 10:15", "question": "What does Paul hope will happen as the Corinthians' faith grows?", "choices": ["That his sphere of influence among them would be greatly enlarged", "That they would stop supporting him", "That he could retire", "That they would become independent of the gospel"], "answer": 0}, {"id": 150, "reference": "2 Cor 10", "question": "In which chapter does Paul discuss spiritual warfare and pulling down strongholds?", "choices": ["Chapter 8", "Chapter 12", "Chapter 10", "Chapter 13"], "answer": 2}, {"id": 151, "reference": "2 Cor 10:16", "question": "What does Paul say about preaching the gospel \"in regions beyond\"?", "choices": ["He wants to preach where the gospel hasn't gone, not boast in another's territory", "He plans to stop preaching altogether", "He wants to take over other apostles' churches", "He refuses to travel further"], "answer": 0}, {"id": 152, "reference": "2 Cor 10:3", "question": "Though Paul walks in the flesh, he does not do what according to the flesh?", "choices": ["Speak", "War/wage warfare", "Travel", "Eat"], "answer": 1}, {"id": 153, "reference": "2 Cor 10:6", "question": "What does Paul say he is ready to do once the Corinthians' obedience is fulfilled?", "choices": ["Punish all disobedience", "Ignore remaining issues", "Retire from preaching", "Leave the ministry"], "answer": 0}, {"id": 154, "reference": "2 Cor 11:2", "question": "Paul describes his jealousy for the Corinthians as what kind of jealousy?", "choices": ["Political jealousy", "Selfish jealousy", "Bitter jealousy", "Godly jealousy"], "answer": 3}, {"id": 155, "reference": "2 Cor 11:3", "question": "Paul fears the Corinthians' minds might be corrupted, just as who was deceived by the serpent's craftiness?", "choices": ["Noah", "Cain", "Adam", "Eve"], "answer": 3}, {"id": 156, "reference": "2 Cor 11:4", "question": "What sarcastic comment does Paul make about the Corinthians' tolerance of false teachers preaching \"another Jesus\"?", "choices": ["They immediately rejected it", "They reported it to Rome", "They ignored it completely", "They put up with it well enough"], "answer": 3}, {"id": 157, "reference": "2 Cor 11:5", "question": "Paul claims he was not at all behind whom?", "choices": ["The Roman emperor", "The most eminent apostles", "The Pharisees", "Timothy"], "answer": 1}, {"id": 158, "reference": "2 Cor 11:7-9", "question": "Why did Paul refuse to accept payment from the Corinthians for preaching?", "choices": ["He was forbidden by Roman law", "He preached the gospel to them free of charge", "He was too wealthy to need it", "He didn't believe in ministry support"], "answer": 1}, {"id": 159, "reference": "2 Cor 11:13-14", "question": "False apostles transform themselves into apostles of Christ, just as Satan transforms into what?", "choices": ["An angel of light", "A serpent", "A roaring lion", "A shadow"], "answer": 0}, {"id": 160, "reference": "2 Cor 11:24", "question": "How many times does Paul say he received forty stripes minus one from the Jews?", "choices": ["Seven times", "Once", "Three times", "Five times"], "answer": 3}, {"id": 161, "reference": "2 Cor 11:25", "question": "How many times was Paul beaten with rods?", "choices": ["Five times", "Never", "Three times", "Once"], "answer": 2}, {"id": 162, "reference": "2 Cor 11:25", "question": "How many times was Paul shipwrecked?", "choices": ["Once", "Four times", "Three times", "Twice"], "answer": 2}, {"id": 163, "reference": "2 Cor 11:25", "question": "How long did Paul spend in the deep after a shipwreck?", "choices": ["Three days", "An hour", "A week", "A night and a day"], "answer": 3}, {"id": 164, "reference": "2 Cor 11:26", "question": "Paul lists numerous perils he faced, including perils of waters, robbers, and his own countrymen \u2014 what other group is mentioned?", "choices": ["Egyptian priests", "Greek philosophers", "Roman senators", "Gentiles and false brethren"], "answer": 3}, {"id": 165, "reference": "2 Cor 11:32-33", "question": "How did Paul escape from Damascus?", "choices": ["Lowered in a basket through a window in the wall", "Disguised as a merchant", "By boat at night", "Through an underground tunnel"], "answer": 0}, {"id": 166, "reference": "2 Cor 11", "question": "In which chapter does Paul list his extensive sufferings, including beatings, shipwrecks, and imprisonments?", "choices": ["Chapter 9", "Chapter 11", "Chapter 12", "Chapter 13"], "answer": 1}, {"id": 167, "reference": "2 Cor 11:28", "question": "Besides physical sufferings, what daily burden does Paul mention?", "choices": ["Political persecution", "Financial debt", "Deep concern for all the churches", "Loneliness only"], "answer": 2}, {"id": 168, "reference": "2 Cor 11:21,23", "question": "Paul introduces his list of sufferings by saying he speaks as what?", "choices": ["A prophet", "A fool", "A king", "A judge"], "answer": 1}, {"id": 169, "reference": "2 Cor 12:2", "question": "Paul describes being caught up to what level, referring to himself in the third person?", "choices": ["The third heaven", "The seventh heaven", "Mount Sinai", "The first heaven"], "answer": 0}, {"id": 170, "reference": "2 Cor 12:4", "question": "What did Paul hear in paradise that was not lawful to utter?", "choices": ["Inexpressible words", "A prophecy of doom", "The name of God", "A new commandment"], "answer": 0}, {"id": 171, "reference": "2 Cor 12:7", "question": "What was given to Paul to keep him from being exalted above measure?", "choices": ["A wealthy patron", "A crown of glory", "A new title", "A thorn in the flesh, a messenger of Satan"], "answer": 3}, {"id": 172, "reference": "2 Cor 12:8", "question": "How many times did Paul plead with the Lord for the thorn in the flesh to depart?", "choices": ["Once", "Three times", "Seven times", "Twice"], "answer": 1}, {"id": 173, "reference": "2 Cor 12:9", "question": "What famous response did the Lord give Paul regarding the thorn in the flesh?", "choices": ["\"Endure and I will remove it soon\"", "\"My grace is sufficient for you, My strength is made perfect in weakness\"", "\"Ask again and it shall be given\"", "\"This is a punishment for your sins\""], "answer": 1}, {"id": 174, "reference": "2 Cor 12:9", "question": "Because of the Lord's answer, what does Paul say he will gladly do?", "choices": ["Leave the ministry", "Demand healing", "Boast in his infirmities", "Hide his weaknesses"], "answer": 2}, {"id": 175, "reference": "2 Cor 12:10", "question": "Paul says when he is weak, then he is what?", "choices": ["Defeated", "Strong", "Silent", "Afraid"], "answer": 1}, {"id": 176, "reference": "2 Cor 12:12", "question": "What signs did Paul say were performed among the Corinthians, proving his apostleship?", "choices": ["Financial miracles only", "Legal rulings", "Signs, wonders, and mighty deeds", "Political victories"], "answer": 2}, {"id": 177, "reference": "2 Cor 12", "question": "In which chapter does Paul describe his vision of being caught up to paradise and the thorn in his flesh?", "choices": ["Chapter 10", "Chapter 13", "Chapter 12", "Chapter 9"], "answer": 2}, {"id": 178, "reference": "2 Cor 12:14", "question": "What does Paul compare his upcoming visit to, regarding not being a financial burden?", "choices": ["A servant saving for a master", "A soldier collecting wages", "A parent saving up for children, not children for parents", "A merchant seeking profit"], "answer": 2}, {"id": 179, "reference": "2 Cor 12:15", "question": "Paul says he will gladly do what for the Corinthians' souls, even though loved less for loving more?", "choices": ["Demand repayment", "Spend and be spent", "Withhold help", "Abandon the mission"], "answer": 1}, {"id": 180, "reference": "2 Cor 12:20", "question": "What fear does Paul express about his upcoming visit regarding the Corinthians' conduct?", "choices": ["Finding them entirely faithful", "Finding contentions, jealousies, outbursts of wrath, and selfish ambitions among them", "Finding them wealthy and content", "Finding the church empty"], "answer": 1}, {"id": 181, "reference": "2 Cor 12:21", "question": "What sins does Paul fear some among them have not repented of?", "choices": ["Uncleanness, fornication, and lewdness", "Pride only", "Theft and lying only", "Idolatry alone"], "answer": 0}, {"id": 182, "reference": "2 Cor 12:5", "question": "Why does Paul say he boasts of \"a man in Christ\" rather than directly of himself, regarding the vision?", "choices": ["Because it wasn't really him", "To avoid excessive personal boasting except in his infirmities", "Because he was ashamed of the vision", "Because the Corinthians demanded anonymity"], "answer": 1}, {"id": 183, "reference": "2 Cor 12:11", "question": "Paul says he has become a fool in boasting because the Corinthians did what?", "choices": ["Paid him to boast", "Asked him not to boast", "Compelled him to do so, since they should have commended him", "Threatened him"], "answer": 2}, {"id": 184, "reference": "2 Cor 12:10", "question": "What does Paul list as things he takes pleasure in for Christ's sake?", "choices": ["Silence and isolation", "Infirmities, reproaches, needs, persecutions, and distresses", "Wealth, comfort, and fame", "Political power"], "answer": 1}, {"id": 185, "reference": "2 Cor 13:1", "question": "Every matter should be established by how many witnesses?", "choices": ["One", "Four", "Two or three", "Seven"], "answer": 2}, {"id": 186, "reference": "2 Cor 13:3", "question": "What does Paul say the Corinthians seek proof of, regarding Christ?", "choices": ["That Christ favors Rome", "That Christ speaks in Paul", "That Christ is silent", "That Christ has left the church"], "answer": 1}, {"id": 187, "reference": "2 Cor 13:4", "question": "Paul says Christ was crucified in weakness, yet lives by what?", "choices": ["Roman authority", "Angelic assistance", "Human strength", "The power of God"], "answer": 3}, {"id": 188, "reference": "2 Cor 13:5", "question": "What does Paul urge the Corinthians to do to themselves, regarding their faith?", "choices": ["Seek a new teacher", "Ignore doubts and move on", "Compare themselves to Paul only", "Examine and test themselves whether they are in the faith"], "answer": 3}, {"id": 189, "reference": "2 Cor 13:5", "question": "What should Christians know about Jesus Christ, unless they are disqualified?", "choices": ["That Jesus Christ demands works only", "That Jesus Christ is in them", "That Jesus Christ is distant", "That Jesus Christ has forgotten them"], "answer": 1}, {"id": 190, "reference": "2 Cor 13:7", "question": "What does Paul pray for regarding the Corinthians, beyond his own vindication?", "choices": ["That they punish his opponents", "That they defend him publicly", "That they send him money", "That they do what is honorable, whether or not Paul appears approved"], "answer": 3}, {"id": 191, "reference": "2 Cor 13:10", "question": "Why does Paul say he writes these things while absent?", "choices": ["Because Titus told him to", "Because he cannot travel", "So that when present he may not use sharpness", "Because he fears them"], "answer": 2}, {"id": 192, "reference": "2 Cor 13:11", "question": "What final exhortations does Paul give the Corinthians?", "choices": ["Rejoice, become complete, be of good comfort, be of one mind, live in peace", "Judge others, seek revenge, remain firm", "Fight for justice, gather wealth, avoid conflict", "Stay silent, avoid others, work hard"], "answer": 0}, {"id": 193, "reference": "2 Cor 13:11", "question": "What does Paul promise will be with them if they live in peace?", "choices": ["The God of love and peace", "Political stability", "Roman protection", "Financial prosperity"], "answer": 0}, {"id": 194, "reference": "2 Cor 13:12", "question": "How does Paul instruct the Corinthians to greet one another?", "choices": ["With silence", "With a written letter only", "With a formal handshake", "With a holy kiss"], "answer": 3}, {"id": 195, "reference": "2 Cor 13:14", "question": "What is the well-known threefold benediction Paul closes 2 Corinthians with?", "choices": ["Peace, joy, and patience", "Wisdom, power, and glory", "Faith, hope, and love", "The grace of the Lord Jesus Christ, the love of God, and the communion of the Holy Spirit"], "answer": 3}, {"id": 196, "reference": "2 Cor 13", "question": "In which chapter does Paul give his final benediction mentioning grace, love, and communion?", "choices": ["Chapter 12", "Chapter 10", "Chapter 13", "Chapter 11"], "answer": 2}, {"id": 197, "reference": "2 Cor 13:2", "question": "Paul warns that if he comes again, he will not do what?", "choices": ["Forgive everyone automatically", "Leave immediately", "Bring gifts", "Spare those who sinned before and have not repented"], "answer": 3}, {"id": 198, "reference": "2 Cor 13:9", "question": "Paul says he is glad when he is weak and the Corinthians are what?", "choices": ["Confused", "Silent", "Wealthy", "Strong"], "answer": 3}, {"id": 199, "reference": "2 Cor 13:9", "question": "What is the purpose Paul gives for his prayer for their \"perfection\" or restoration?", "choices": ["So they would gain political favor", "So they would stop meeting together", "So they would be fully mature and complete in faith", "So they would become rich"], "answer": 2}, {"id": 200, "reference": "2 Cor 5:14-15", "question": "Paul says the love of Christ compels believers to no longer live for themselves but for whom?", "choices": ["Their families only", "Their own ambitions", "Their nation", "Him who died for them and rose again"], "answer": 3}];
+  const QUESTIONS_PER_QUIZ = 20;
+
+  let quizQuestions = [];
+  let currentIndex = 0;
+  let score = 0;
+  let answered = false;
+
+  function shuffle(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  function showStart() { showScreen('screen-start'); }
+
+  function startQuiz() {
+    const pool = shuffle(ALL_QUESTIONS).slice(0, QUESTIONS_PER_QUIZ);
+    quizQuestions = pool.map(q => {
+      const choices = shuffle(q.choices.map((text, i) => ({ text, isCorrect: i === q.answer })));
+      return { reference: q.reference, question: q.question, choices };
+    });
+    currentIndex = 0;
+    score = 0;
+    answered = false;
+    showScreen('screen-quiz');
+    renderQuestion();
+  }
+
+  function renderQuestion() {
+    answered = false;
+    const q = quizQuestions[currentIndex];
+    document.getElementById('progress-fill').style.width = ((currentIndex) / QUESTIONS_PER_QUIZ * 100) + '%';
+    document.getElementById('q-counter').textContent = `Question ${currentIndex + 1} of ${QUESTIONS_PER_QUIZ}`;
+    document.getElementById('q-score').textContent = `Score: ${score}`;
+    document.getElementById('q-text').textContent = q.question;
+    document.getElementById('q-reference').textContent = '';
+
+    const choicesEl = document.getElementById('q-choices');
+    choicesEl.innerHTML = '';
+    q.choices.forEach((choice) => {
+      const btn = document.createElement('button');
+      btn.className = 'choice';
+      btn.textContent = choice.text;
+      btn.onclick = () => selectAnswer(btn, choice, q);
+      choicesEl.appendChild(btn);
+    });
+  }
+
+  function selectAnswer(btn, choice, q) {
+    if (answered) return;
+    answered = true;
+
+    const allButtons = document.querySelectorAll('#q-choices .choice');
+    allButtons.forEach(b => b.disabled = true);
+
+    if (choice.isCorrect) {
+      btn.classList.add('correct');
+      score++;
+    } else {
+      btn.classList.add('incorrect');
+      allButtons.forEach((b, i) => {
+        if (q.choices[i].isCorrect) b.classList.add('correct');
+      });
+    }
+
+    document.getElementById('q-reference').textContent = q.reference;
+    document.getElementById('q-score').textContent = `Score: ${score}`;
+
+    setTimeout(() => {
+      currentIndex++;
+      if (currentIndex < QUESTIONS_PER_QUIZ) {
+        renderQuestion();
+      } else {
+        finishQuiz();
+      }
+    }, 1400);
+  }
+
+  function finishQuiz() {
+    document.getElementById('progress-fill').style.width = '100%';
+    document.getElementById('final-score').textContent = `${score}/${QUESTIONS_PER_QUIZ}`;
+    document.getElementById('final-label').textContent = scoreLabel(score);
+    showScreen('screen-results');
+    checkHighScore(score);
+  }
+
+  function scoreLabel(s) {
+    const pct = s / QUESTIONS_PER_QUIZ;
+    if (pct === 1) return "Perfect score!";
+    if (pct >= 0.8) return "Excellent work";
+    if (pct >= 0.6) return "Solid grasp of the text";
+    if (pct >= 0.4) return "Good start — keep studying";
+    return "Time for another read-through";
+  }
+
+  async function checkHighScore(finalScore) {
+    const area = document.getElementById('highscore-area');
+    area.innerHTML = '';
+    if (!supabaseConfigured()) return;
+
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?select=score&order=score.desc&limit=10`, {
+        headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` }
+      });
+      const top = await res.json();
+      const lowestTopScore = top.length < 10 ? -1 : top[top.length - 1].score;
+
+      if (finalScore > lowestTopScore || top.length < 10) {
+        const banner = document.createElement('div');
+        banner.className = 'highscore-banner';
+        banner.innerHTML = `
+          <p style="margin:0 0 10px;">You made the top 10! Enter your name:</p>
+          <input class="field" id="name-input" maxlength="20" placeholder="Your name" />
+          <button class="btn" style="margin-top:10px;" onclick="submitScore(${finalScore})">Submit</button>
+        `;
+        area.appendChild(banner);
+      }
+    } catch (e) {
+      console.error('Leaderboard check failed', e);
+    }
+  }
+
+  async function submitScore(finalScore) {
+    const nameInput = document.getElementById('name-input');
+    const name = (nameInput.value || 'Anonymous').trim().slice(0, 20) || 'Anonymous';
+
+    try {
+      await fetch(`${SUPABASE_URL}/rest/v1/leaderboard`, {
+        method: 'POST',
+        headers: {
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+          'Content-Type': 'application/json',
+          Prefer: 'return=minimal'
+        },
+        body: JSON.stringify({ name, score: finalScore })
+      });
+      document.getElementById('highscore-area').innerHTML = '<div class="highscore-banner">Score submitted — nice work!</div>';
+      setTimeout(showLeaderboard, 900);
+    } catch (e) {
+      console.error('Submit failed', e);
+      document.getElementById('highscore-area').innerHTML = '<div class="highscore-banner">Could not submit score. Check your connection.</div>';
+    }
+  }
+
+  function supabaseConfigured() {
+    return SUPABASE_URL && !SUPABASE_URL.includes('YOUR_') && SUPABASE_ANON_KEY && !SUPABASE_ANON_KEY.includes('YOUR_');
+  }
+
+  async function showLeaderboard() {
+    showScreen('screen-leaderboard');
+    const list = document.getElementById('leaderboard-list');
+
+    if (!supabaseConfigured()) {
+      list.innerHTML = '<p class="loading-text">Leaderboard not connected yet. Add your Supabase URL and key in the code.</p>';
+      return;
+    }
+
+    list.innerHTML = '<p class="loading-text">Loading...</p>';
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?select=name,score&order=score.desc&limit=10`, {
+        headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` }
+      });
+      const rows = await res.json();
+      if (!Array.isArray(rows) || rows.length === 0) {
+        list.innerHTML = '<p class="loading-text">No scores yet — be the first!</p>';
+        return;
+      }
+      list.innerHTML = rows.map((r, i) => `
+        <div class="leader-row">
+          <span class="leader-rank">${i + 1}</span>
+          <span class="leader-name">${escapeHtml(r.name)}</span>
+          <span class="leader-score">${r.score}/20</span>
+        </div>
+      `).join('');
+    } catch (e) {
+      console.error('Leaderboard load failed', e);
+      list.innerHTML = '<p class="loading-text">Could not load leaderboard.</p>';
+    }
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+</script>
+
+</body>
+</html>
