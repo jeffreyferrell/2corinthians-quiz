@@ -263,6 +263,38 @@
     margin-top: 6px;
   }
 
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(8,13,20,0.72);
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 20px;
+  }
+  .modal-overlay.active { display: flex; }
+  .modal-box {
+    background: var(--panel-raised);
+    border: 1px solid rgba(201,165,74,0.3);
+    border-radius: var(--radius-card);
+    padding: 24px 22px;
+    max-width: 360px;
+    width: 100%;
+    box-shadow: 0 24px 70px rgba(0,0,0,0.5);
+  }
+  .modal-box p {
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--parchment);
+    margin: 0 0 18px;
+  }
+  .modal-actions {
+    display: flex;
+    gap: 10px;
+  }
+  .modal-actions .btn { margin-top: 0; }
+
   .highscore-banner {
     background: rgba(201,165,74,0.12);
     border: 1px solid rgba(201,165,74,0.35);
@@ -385,7 +417,7 @@
         <div class="label" id="final-label">Quiz complete</div>
       </div>
       <div id="highscore-area"></div>
-      <button class="btn" onclick="startQuiz()">Try Again</button>
+      <button class="btn" onclick="confirmRestart()">Try Again</button>
       <button class="btn secondary" onclick="showReport()">View Full Report</button>
       <button class="btn secondary" onclick="showLeaderboard()">View Leaderboard</button>
     </div>
@@ -409,6 +441,16 @@
   <p class="footnote">Questions paraphrase the content of 2 Corinthians (NKJV). Verify exact wording in your own Bible.</p>
 </div>
 
+<div class="modal-overlay" id="restart-modal">
+  <div class="modal-box">
+    <p>You made the leaderboard but haven't entered your name yet. Restarting now means this score won't be saved.</p>
+    <div class="modal-actions">
+      <button class="btn secondary" onclick="closeRestartModal()">Cancel</button>
+      <button class="btn" onclick="forceRestart()">Restart Anyway</button>
+    </div>
+  </div>
+</div>
+
 <script>
   // ---- CONFIGURE THESE TWO VALUES ----
   const SUPABASE_URL = "https://tpjqiqehpljkkojeparm.supabase.co";
@@ -423,6 +465,7 @@
   let score = 0;
   let answered = false;
   let userAnswers = [];
+  let hasUnsavedHighScore = false;
 
   function shuffle(arr) {
     const a = arr.slice();
@@ -533,6 +576,24 @@
     checkHighScore(score);
   }
 
+  function confirmRestart() {
+    if (hasUnsavedHighScore) {
+      document.getElementById('restart-modal').classList.add('active');
+    } else {
+      startQuiz();
+    }
+  }
+
+  function closeRestartModal() {
+    document.getElementById('restart-modal').classList.remove('active');
+  }
+
+  function forceRestart() {
+    hasUnsavedHighScore = false;
+    closeRestartModal();
+    startQuiz();
+  }
+
   function scoreLabel(s) {
     const pct = s / QUESTIONS_PER_QUIZ;
     if (pct === 1) return "Perfect score!";
@@ -545,6 +606,7 @@
   async function checkHighScore(finalScore) {
     const area = document.getElementById('highscore-area');
     area.innerHTML = '';
+    hasUnsavedHighScore = false;
     if (!supabaseConfigured()) return;
 
     try {
@@ -555,6 +617,7 @@
       const lowestTopScore = top.length < 10 ? -1 : top[top.length - 1].score;
 
       if (finalScore > lowestTopScore || top.length < 10) {
+        hasUnsavedHighScore = true;
         const banner = document.createElement('div');
         banner.className = 'highscore-banner';
         banner.innerHTML = `
@@ -584,6 +647,7 @@
         },
         body: JSON.stringify({ name, score: finalScore })
       });
+      hasUnsavedHighScore = false;
       document.getElementById('highscore-area').innerHTML = '<div class="highscore-banner">Score submitted — nice work!</div>';
       setTimeout(showLeaderboard, 900);
     } catch (e) {
